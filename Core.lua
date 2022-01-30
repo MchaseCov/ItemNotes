@@ -24,12 +24,11 @@ function ItemNotes:SetDefaults()
 end
 
 -- Callback to grab item link for chat message
-function ItemNotes:ReturnSetNoteMessage(item, note)
-    local note = note
-    local item = Item:CreateFromItemID((tonumber(item)))
+function ItemNotes:ReturnNoteMessage(itemid)
+    local item = Item:CreateFromItemID((tonumber(itemid)))
     item:ContinueOnItemLoad(function()
         local itemLink = item:GetItemLink()
-        print("Set " .. itemLink .. " to " .. note)
+        print(itemLink .. ": " .. self.db.notes[itemid])
     end)
 end
 
@@ -37,7 +36,7 @@ end
 function ItemNotes:SetItemNote(item, note)
     if note and #note > 0 then
         ItemNotes:SetNote(item, note)
-        ItemNotes:ReturnSetNoteMessage(item, note)
+        ItemNotes:ReturnNoteMessage(item, note)
     else
         print("You must type a note!")
     end
@@ -55,13 +54,27 @@ function ItemNotes:RemoveItemNote(item)
     end
 end
 
+-- Fetches item note
+function ItemNotes:FetchItemNote(item)
+    if self.db.notes[item] then
+        ItemNotes:ReturnNoteMessage(item)
+    else
+        print("No note saved for that item.")
+    end
+end
+
 -- Evaluates first argument of /itemnote <args>
 function ItemNotes:NoteCommandHandler(input)
     local _, _, cmd, args = string.find(input, "%s?(%w+)%s?(.*)")
     local _, _, item, note = string.find(args, "%s?(%w+)%s?(.*)")
 
-    if cmd == "add" and args ~= "" then ItemNotes:SetItemNote(item, note) end
-    if cmd == "remove" and args ~= "" then ItemNotes:RemoveItemNote(item) end
+    if args ~= "" then
+        if cmd == "add" then ItemNotes:SetItemNote(item, note) end
+        if cmd == "remove" then ItemNotes:RemoveItemNote(item) end
+        if cmd == "fetch" then ItemNotes:FetchItemNote(item) end
+    else
+        if cmd == "help" then print("Help menu placeholder") end
+    end
 end
 
 -- Itemnote commands
