@@ -1,6 +1,7 @@
 local _G = _G
 ItemNotes = {}
 
+-- Load note database on login 
 local frame = CreateFrame("Frame")
 
 frame:RegisterEvent("PLAYER_LOGIN")
@@ -22,6 +23,7 @@ function ItemNotes:SetDefaults()
     end
 end
 
+-- Callback to grab item link for chat message
 function ItemNotes:ReturnSetNoteMessage(item, note)
     local note = note
     local item = Item:CreateFromItemID((tonumber(item)))
@@ -31,8 +33,8 @@ function ItemNotes:ReturnSetNoteMessage(item, note)
     end)
 end
 
+-- Creates/updates note based on item ID input
 function ItemNotes:SetItemNote(item, note)
-
     if note and #note > 0 then
         ItemNotes:SetNote(item, note)
         ItemNotes:ReturnSetNoteMessage(item, note)
@@ -41,6 +43,11 @@ function ItemNotes:SetItemNote(item, note)
     end
 end
 
+function ItemNotes:SetNote(item, note)
+    if self.db.notes and item then self.db.notes[item] = note end
+end
+
+-- Removes item note based on item ID
 function ItemNotes:RemoveItemNote(item)
     if self.db.notes and item then
         self.db.notes[item] = nil
@@ -48,6 +55,7 @@ function ItemNotes:RemoveItemNote(item)
     end
 end
 
+-- Evaluates first argument of /itemnote <args>
 function ItemNotes:NoteCommandHandler(input)
     local _, _, cmd, args = string.find(input, "%s?(%w+)%s?(.*)")
     local _, _, item, note = string.find(args, "%s?(%w+)%s?(.*)")
@@ -56,10 +64,9 @@ function ItemNotes:NoteCommandHandler(input)
     if cmd == "remove" and args ~= "" then ItemNotes:RemoveItemNote(item) end
 end
 
-function ItemNotes:SetNote(item, note)
-    if self.db.notes and item then self.db.notes[item] = note end
-end
-
+-- Itemnote commands
 SLASH_ITEMNOTE1 = "/itemnote"
+SLASH_ITEMNOTE2 = "/itemnotes"
+SLASH_ITEMNOTE3 = "/inote"
 SlashCmdList["ITEMNOTE"] =
     function(input) ItemNotes:NoteCommandHandler(input) end
