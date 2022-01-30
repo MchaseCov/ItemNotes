@@ -63,23 +63,20 @@ function ItemNotes:FetchItemNote(item)
     end
 end
 
--- Evaluates first argument of /itemnote <args>
-function ItemNotes:NoteCommandHandler(input)
-    local _, _, cmd, args = string.find(input, "%s?(%w+)%s?(.*)")
-    local _, _, item, note = string.find(args, "%s?(%w+)%s?(.*)")
-
-    if args ~= "" then
-        if cmd == "add" then ItemNotes:SetItemNote(item, note) end
-        if cmd == "remove" then ItemNotes:RemoveItemNote(item) end
-        if cmd == "fetch" then ItemNotes:FetchItemNote(item) end
-    else
-        if cmd == "help" then print("Help menu placeholder") end
+function CheckChatForLinks(self, event, arg1, arg2, ...)
+    local id = arg1:match("|Hitem:(%d+):")
+    if id then
+        if ItemNotes.db.notes[id] then
+            _, j = string.find(arg1, "]|h|r") -- Index point of the last character of the link
+            local part1 = string.sub(arg1, 1, j) -- First half of message up until link
+            local part2 = string.sub(arg1, (j + 1), -1) -- Second half of message starting with first character after link
+            local noteTip = "[NOTE] " -- Note tooltip to insert
+            return false, (part1 .. noteTip .. part2), arg2, ... -- Return false, combined message, author, ...
+        end
     end
 end
 
--- Itemnote commands
-SLASH_ITEMNOTE1 = "/itemnote"
-SLASH_ITEMNOTE2 = "/itemnotes"
-SLASH_ITEMNOTE3 = "/inote"
-SlashCmdList["ITEMNOTE"] =
-    function(input) ItemNotes:NoteCommandHandler(input) end
+ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", CheckChatForLinks)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", CheckChatForLinks)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", CheckChatForLinks)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", CheckChatForLinks)
