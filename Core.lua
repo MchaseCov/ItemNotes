@@ -27,16 +27,15 @@ function ItemNotes:SetNoteHandler(input)
 
     if note and #note > 0 then
         ItemNotes:SetNote(item, note)
+        local itemName, itemLink = GetItemInfo(item)
+        print("Set " .. itemLink .. " to " .. note)
     else
         print("You must type a note!")
     end
 end
 
 function ItemNotes:SetNote(item, note)
-    if self.db.notes and item then
-        self.db.notes[item] = note
-        print("Set " .. item .. " to " .. note)
-    end
+    if self.db.notes and item then self.db.notes[item] = note end
 end
 
 SLASH_ADDNOTE1 = "/itemnoteadd"
