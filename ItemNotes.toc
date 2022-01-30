@@ -3,5 +3,6 @@
 ## Notes: Set personal notes for items to view in chat and item tooltips.
 ## Author: Michibi
 ## Version: 1.0.0
+## SavedVariables: ItemNotesDB
 
 Core.lua
